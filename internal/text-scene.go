@@ -6,8 +6,10 @@ import (
 	"github.com/DrJosh9000/yarn"
 	"github.com/DrJosh9000/yarn/bytecode"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/tinne26/etxt"
+	"golang.org/x/exp/shiny/materialdesign/colornames"
 	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
@@ -88,9 +90,12 @@ func loadImg(path string) *ebiten.Image {
 }
 
 type TextScene struct {
-	handler *DialogueHandler
-	choices []Choice
-	lastSeq int
+	handler     *DialogueHandler
+	choices     []Choice
+	lastSeq     int
+	highlighted int
+
+	music *Player
 }
 
 type Choice struct {
@@ -98,13 +103,28 @@ type Choice struct {
 	choice      int // integer option in the current dialogue settings.
 }
 
-func NewTextScene() *TextScene {
+func NewTextScene(aCtx *audio.Context) *TextScene {
+	p, err := NewPlayer(aCtx)
+	if err != nil {
+		panic(fmt.Errorf("audio context: %w", err))
+	}
 	return &TextScene{
 		handler: NewDialogueHandler(),
+		music:   p,
 	}
 }
 
 func (s *TextScene) Update() error {
+	if err := s.music.update(); err != nil {
+		panic(fmt.Errorf("music: %w", err))
+	}
+	s.highlighted = -1
+	posx, posy := ebiten.CursorPosition()
+	for idx, choice := range s.choices {
+		if image.Pt(posx, posy).In(choice.clickBounds) {
+			s.highlighted = idx
+		}
+	}
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButton0) {
 		posx, posy := ebiten.CursorPosition()
 		for _, choice := range s.choices {
@@ -129,6 +149,7 @@ func (s *TextScene) Draw(screen *ebiten.Image) {
 	renderer.SetTarget(screen)
 	s.handler.mut.RLock()
 	func() {
+		renderer.SetColor(colornames.White)
 		feed := renderer.NewFeed(fixed.P(DialogueBounds.Min.X, DialogueBounds.Min.Y))
 		defer s.handler.mut.RUnlock()
 		DrawInBox(feed, s.handler.currNode.Prompt, DialogueBounds)
@@ -140,6 +161,11 @@ func (s *TextScene) Draw(screen *ebiten.Image) {
 				panic(fmt.Errorf("rendering option: %w", err))
 			}
 			feed.LineBreak()
+			if s.highlighted == i {
+				renderer.SetColor(colornames.Yellow500)
+			} else {
+				renderer.SetColor(colornames.White)
+			}
 			s.choices[i].clickBounds = DrawInBox(feed, fmt.Sprintf("> %s", str), DialogueBounds)
 			s.choices[i].choice = i
 
@@ -202,9 +228,10 @@ func (h *DialogueHandler) Line(line yarn.Line) error {
 	h.mut.Lock()
 	func() {
 		defer h.mut.Unlock()
-		h.currNode = Node{
-			Prompt: str.String(),
+		if h.currNode.Prompt != "" {
+			h.currNode.Prompt += "\n"
 		}
+		h.currNode.Prompt += str.String()
 	}()
 	return nil
 }
@@ -233,6 +260,7 @@ func (h *DialogueHandler) Options(opts []yarn.Option) (int, error) {
 	fmt.Println("dialogue handler: blocking on selection")
 	choice := <-h.choice
 	fmt.Printf("dialogue handler: selected choice [%d]\n", choice)
+	h.currNode.Prompt = "" // HACK!
 	return choice, nil
 }
 

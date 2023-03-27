@@ -2,6 +2,7 @@ package internal
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 	"sync"
 )
 
@@ -16,7 +17,8 @@ type Game struct {
 
 func NewGame() (*Game, error) {
 	g := &Game{}
-	g.currScene = NewTextScene()
+	aCtx := audio.NewContext(sampleRate)
+	g.currScene = NewTextScene(aCtx)
 	return g, nil
 }
 
