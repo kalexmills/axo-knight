@@ -16,7 +16,7 @@ type Game struct {
 
 func NewGame() (*Game, error) {
 	g := &Game{}
-	g.currScene = NewBaseScene(g)
+	g.currScene = NewTextScene()
 	return g, nil
 }
 
