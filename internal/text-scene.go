@@ -13,6 +13,7 @@ import (
 	"image/color"
 	_ "image/png"
 	"log"
+	"strings"
 	"sync"
 	"unicode/utf8"
 )
@@ -35,20 +36,38 @@ var (
 )
 
 var (
-	fg *ebiten.Image
+	fg       *ebiten.Image
+	barracks *ebiten.Image
+
+	currBg   *ebiten.Image
+	currChar *ebiten.Image
 )
 
 func init() {
+	// load up UI and background images
 	fg = loadImg("gamedata/ui-scaled.png")
+	barracks = loadImg("gamedata/barracks.png")
+	currBg = barracks
+
+	// load up fonts
 	fontLib = etxt.NewFontLibrary()
 	_, _, err := fontLib.ParseEmbedDirFonts("gamedata/fonts", gamedata)
 	if err != nil {
 		panic(err)
 	}
+	var fonts []string
+	_ = fontLib.EachFont(func(s string, font *etxt.Font) error {
+		fonts = append(fonts, s)
+		return nil
+	})
+	fmt.Println("fonts available:", strings.Join(fonts, ","))
+
+	// set up text renderer
 	renderer = etxt.NewStdRenderer()
-	renderer.SetFont(fontLib.GetFont("Press Start Regular"))
+	renderer.SetFont(fontLib.GetFont("DePixel Breit"))
 	renderer.SetSizePx(fontSize)
 	renderer.SetColor(fontColor)
+	renderer.SetLineSpacing(1.15)
 
 	program, stringTable, err = yarn.LoadFiles("internal/gamedata/yarn/Main.yarnc", "internal/gamedata/yarn/Main-Lines.csv", "en-US")
 	if err != nil {
@@ -101,6 +120,9 @@ func (s *TextScene) Update() error {
 var DialogueBounds = image.Rect(146+5, 430+12, 146+517, 430+163)
 
 func (s *TextScene) Draw(screen *ebiten.Image) {
+	opts := ebiten.DrawImageOptions{}
+	opts.GeoM.Translate(141, 0)
+	screen.DrawImage(currBg, &opts) // draw current background centered
 
 	screen.DrawImage(fg, nil) // draw foreground over everything.
 
@@ -275,7 +297,7 @@ func DrawInBox(feed *etxt.Feed, text string, bounds image.Rectangle) image.Recta
 				return used
 			}
 			used.Max.X = max(used.Max.X, (feed.Position.X + width).Ceil())
-			used.Max.Y = max(used.Max.Y, feed.Position.Y.Floor()+12)
+			used.Max.Y = max(used.Max.Y, feed.Position.Y.Floor()+14)
 
 			// draw the word and increase index
 			for _, codePoint := range word {
