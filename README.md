@@ -10,11 +10,11 @@ friends and acquaintances came together and created and conceived of _everything
 Authors:
  - Alex Mills (hacking, lead)
  - Snarly (character design, art)
- - DanaReckoning (writing, UI)
+ - DanaReckoning (writing, UI design)
  - Pixelgazer (music, sfx)
  - ClowReed53 (marketing, backgrounds)
 
-Thanks to everyone who participated and made this Game-A-Day Hackathon a ⭐success ⭐!
+Thanks to everyone who participated and made this Game-A-Day Hackathon a ⭐ success ⭐!
 
 ### Technologies used:
 - [Ebitengine](https://ebitengine.org/)

@@ -31,7 +31,7 @@ jobs:
           go-version: 1.19
       - name: Build Windows exe
         shell: bash
-        run: go build -v -o 2d-platformer cmd/game/main.go
+        run: go build -v -o 2d-platformer.exe cmd/game/main.go
       - name: Upload Windows exe
         uses: actions/upload-artifact@v3
         with:
