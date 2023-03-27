@@ -162,7 +162,7 @@ func (s *TextScene) Draw(screen *ebiten.Image) {
 			}
 			feed.LineBreak()
 			if s.highlighted == i {
-				renderer.SetColor(colornames.Yellow500)
+				renderer.SetColor(colornames.Cyan500)
 			} else {
 				renderer.SetColor(colornames.White)
 			}
