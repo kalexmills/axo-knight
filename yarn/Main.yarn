@@ -15,17 +15,22 @@ A stern-looking toad stands above you, a straw broom in her slimy grasp. She loo
 
 "Why? WHY?! You've got quite a bit of nerve askin' me that after the scene you caused last night in the wee hours..."
 
+
+
 ->"Scene, why whatever do you mean?"
 ->"Was it that bad? I never can control myself when it comes to mead..."
 ->"Oh come now, i can't have carried on any worse than last time..."
 
 "Don't you play dumb with me you little roustabout. You know good and well what you've done... And with the Tourney today, you should be ashamed!" Berthilde shakes her head gravely.
 
+<< char berthildeSide >>
+
 ->"Actually, I don't seem to recall what happened last night..."
 ->"Play dumb? Me? I would never... But seriously, I have no idea."
 ->*sigh* "Please, just tell me what I did so I can go about rectifying it."
 
 "You mean you really don't remember? Oh, saints preserve us! 'Tis worse than I thought," she says, her eyes widening as she makes a propitiatory gesture.
+
 
 ->"I swear, I don't."
 

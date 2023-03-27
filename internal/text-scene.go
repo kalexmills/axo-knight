@@ -38,12 +38,13 @@ var (
 )
 
 var (
-	cathedralUI *ebiten.Image
-	barracks    *ebiten.Image
-	greatHall   *ebiten.Image
-	bedroom     *ebiten.Image
-	berthilde   *ebiten.Image
-	melusine    *ebiten.Image
+	cathedralUI   *ebiten.Image
+	barracks      *ebiten.Image
+	greatHall     *ebiten.Image
+	bedroom       *ebiten.Image
+	berthilde     *ebiten.Image
+	berthildeSide *ebiten.Image
+	melusine      *ebiten.Image
 
 	currBg   *ebiten.Image
 	currChar *ebiten.Image
@@ -58,6 +59,7 @@ func init() {
 	currBg = barracks
 
 	berthilde = loadImg("gamedata/berthilde.png")
+	berthildeSide = loadImg("gamedata/berthilde_side.png")
 	melusine = loadImg("gamedata/melusine.png")
 
 	// load up fonts
@@ -372,6 +374,8 @@ func (h *DialogueHandler) character(name string) error {
 	switch name {
 	case "berthilde":
 		setCharacter(berthilde)
+	case "berthildeSide":
+		setCharacter(berthildeSide)
 	case "melusine":
 		setCharacter(melusine)
 	case "none":
