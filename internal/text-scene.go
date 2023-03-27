@@ -104,7 +104,8 @@ type TextScene struct {
 	lastSeq     int
 	highlighted int
 
-	music *Player
+	music   *Player
+	snoring *Player
 }
 
 type Choice struct {
@@ -113,20 +114,32 @@ type Choice struct {
 }
 
 func NewTextScene(aCtx *audio.Context) *TextScene {
-	p, err := NewPlayer(aCtx)
+	music, err := NewPlayer(aCtx, fluteLoop)
 	if err != nil {
 		panic(fmt.Errorf("audio context: %w", err))
 	}
-	return &TextScene{
-		handler: NewDialogueHandler(),
-		music:   p,
+	snoring, err := NewPlayer(aCtx, snoring)
+	if err != nil {
+		panic(fmt.Errorf("audio context: %w", err))
 	}
+	result := &TextScene{
+		handler: NewDialogueHandler(),
+		music:   music,
+		snoring: snoring,
+	}
+	result.handler.textScene = result
+	return result
 }
 
 func (s *TextScene) Update() error {
 	if err := s.music.update(); err != nil {
 		panic(fmt.Errorf("music: %w", err))
 	}
+	s.music.volume128 = 10
+	if err := s.snoring.update(); err != nil {
+		panic(fmt.Errorf("snoring: %w", err))
+	}
+	s.snoring.volume128 = 128
 	s.highlighted = -1
 	posx, posy := ebiten.CursorPosition()
 	for idx, choice := range s.choices {
@@ -143,8 +156,6 @@ func (s *TextScene) Update() error {
 			}
 		}
 		func() {
-			//s.handler.clickMut.Lock()
-			//defer s.handler.clickMut.Unlock()
 			s.handler.click.Broadcast()
 		}()
 	}
@@ -205,11 +216,12 @@ func (s *TextScene) Layout(w, h int) (int, int) {
 }
 
 type DialogueHandler struct {
-	vm       *yarn.VirtualMachine
-	mut      sync.RWMutex
-	seq      int // ever-increasing sequence number
-	currNode Node
-	choice   chan int
+	vm        *yarn.VirtualMachine
+	mut       sync.RWMutex
+	seq       int // ever-increasing sequence number
+	currNode  Node
+	choice    chan int
+	textScene *TextScene
 
 	click    *sync.Cond
 	clickMut *sync.Mutex
@@ -243,7 +255,6 @@ func (h *DialogueHandler) NodeStart(nodeName string) error {
 }
 
 func (h *DialogueHandler) PrepareForLines(lineIDs []string) error {
-	//fmt.Println("dialogue handler: prepare for lines", lineIDs)
 	return nil
 }
 
@@ -315,9 +326,32 @@ func (h *DialogueHandler) Command(cmd string) error {
 		return h.character(tokens[1])
 	case "wait":
 		return h.wait()
+	case "loopStart":
+		return h.loopStart(tokens[1])
+	case "loopStop":
+		return h.loopStop(tokens[1])
 	default:
 		return fmt.Errorf("unknown commmand '%s'", tokens[0])
 	}
+}
+
+func (h *DialogueHandler) loopStart(name string) error {
+	switch name {
+	case "snoring":
+		h.textScene.snoring.Start()
+	case "music":
+		h.textScene.music.Start()
+	}
+	return nil
+}
+func (h *DialogueHandler) loopStop(name string) error {
+	switch name {
+	case "snoring":
+		h.textScene.snoring.Stop()
+	case "music":
+		h.textScene.music.Stop()
+	}
+	return nil
 }
 
 func (h *DialogueHandler) background(img string) error {

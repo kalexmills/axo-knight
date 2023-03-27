@@ -32,7 +32,10 @@ type Player struct {
 	alertButtonPosition image.Point
 }
 
-func NewPlayer(audioContext *audio.Context) (*Player, error) {
+const fluteLoop = "anotherfluteloopwithsometamborine.mp3"
+const snoring = "snoring.mp3"
+
+func NewPlayer(audioContext *audio.Context, file string) (*Player, error) {
 	type audioStream interface {
 		io.ReadSeeker
 		Length() int64
@@ -42,7 +45,7 @@ func NewPlayer(audioContext *audio.Context) (*Player, error) {
 
 	var s audioStream
 
-	f, err := gamedata.Open("gamedata/music/anotherfluteloopwithsometamborine.mp3")
+	f, err := gamedata.Open("gamedata/music/" + file)
 	if err != nil {
 		panic(err)
 	}
@@ -73,6 +76,14 @@ func NewPlayer(audioContext *audio.Context) (*Player, error) {
 
 func (p *Player) Close() error {
 	return p.audioPlayer.Close()
+}
+
+func (p *Player) Stop() {
+	p.audioPlayer.Pause()
+}
+
+func (p *Player) Start() {
+	p.audioPlayer.Play()
 }
 
 func (p *Player) update() error {

@@ -2,6 +2,7 @@ title: Start
 ---
 "Wake Up you lazybones!"
 A stern-looking toad stands above you, a straw broom in her slimy grasp. She looks at you with a disgruntled look upon her waxy face.
+<< loopStart snoring >>
 
 -> "Whaaa...?"
 -> "Five more minutes..."
@@ -51,6 +52,7 @@ With that, Berthilde promptly exits the barracks and leaves you alone in the roo
 
 You find yourself in the resplendent Main Hall, full of passed-out courtiers and servants. The space is only slightly worse-for-wear after the previous eve's raucous festivities. You blush as you notice the distinct muddy shapes of axolotl feet--your feet-- which trail across the ceiling and around the walls, occasionally ducking behind the now askew tapestries lining the cold stone walls.
 << background great_hall >>
+<< loopStop snoring >>
 << wait >>
 
 You follow them through into the halls, through the kitchens, past the gallery, and up the stairs until you see with dread where they end up: the door to Lady Melusine's chambers!
