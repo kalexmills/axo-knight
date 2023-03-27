@@ -45,6 +45,7 @@ var (
 	berthilde     *ebiten.Image
 	berthildeSide *ebiten.Image
 	melusine      *ebiten.Image
+	melusineSide  *ebiten.Image
 
 	currBg   *ebiten.Image
 	currChar *ebiten.Image
@@ -60,6 +61,10 @@ func init() {
 
 	berthilde = loadImg("gamedata/berthilde.png")
 	berthildeSide = loadImg("gamedata/berthilde_side.png")
+
+	melusine = loadImg("gamedata/melusine.png")
+	melusineSide = loadImg("gamedata/melusineSide.png")
+
 	melusine = loadImg("gamedata/melusine.png")
 
 	// load up fonts
@@ -378,6 +383,8 @@ func (h *DialogueHandler) character(name string) error {
 		setCharacter(berthildeSide)
 	case "melusine":
 		setCharacter(melusine)
+	case "melusineSide":
+		setCharacter(melusineSide)
 	case "none":
 		unsetCharacter()
 	default:
