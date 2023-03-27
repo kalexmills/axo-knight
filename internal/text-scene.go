@@ -38,12 +38,12 @@ var (
 )
 
 var (
-	fg        *ebiten.Image
-	barracks  *ebiten.Image
-	greatHall *ebiten.Image
-	bedroom   *ebiten.Image
-	berthilde *ebiten.Image
-	melusine  *ebiten.Image
+	cathedralUI *ebiten.Image
+	barracks    *ebiten.Image
+	greatHall   *ebiten.Image
+	bedroom     *ebiten.Image
+	berthilde   *ebiten.Image
+	melusine    *ebiten.Image
 
 	currBg   *ebiten.Image
 	currChar *ebiten.Image
@@ -51,7 +51,7 @@ var (
 
 func init() {
 	// load up UI and background images
-	fg = loadImg("gamedata/ui-scaled.png")
+	cathedralUI = loadImg("gamedata/ui-scaled.png")
 	barracks = loadImg("gamedata/barracks.png")
 	greatHall = loadImg("gamedata/hall_background.png")
 	bedroom = loadImg("gamedata/bedroom.png")
@@ -164,34 +164,35 @@ func (s *TextScene) Draw(screen *ebiten.Image) {
 		screen.DrawImage(currChar, &opts)
 	}
 
-	screen.DrawImage(fg, nil) // draw foreground over everything.
+	screen.DrawImage(cathedralUI, nil) // draw foreground over everything.
 
+	// draw all dialogue text
 	renderer.SetTarget(screen)
 	s.handler.mut.RLock()
-	func() {
-		renderer.SetColor(colornames.White)
-		feed := renderer.NewFeed(fixed.P(DialogueBounds.Min.X, DialogueBounds.Min.Y))
-		defer s.handler.mut.RUnlock()
-		DrawInBox(feed, s.handler.currNode.Prompt, DialogueBounds)
-		feed.LineBreak()
-		s.choices = make([]Choice, len(s.handler.currOpts))
-		for i, choice := range s.handler.currOpts {
-			str, err := stringTable.Render(choice.Line)
-			if err != nil {
-				panic(fmt.Errorf("rendering option: %w", err))
-			}
-			feed.LineBreak()
-			if s.highlighted == i {
-				renderer.SetColor(colornames.Cyan500)
-			} else {
-				renderer.SetColor(colornames.White)
-			}
-			s.choices[i].clickBounds = DrawInBox(feed, fmt.Sprintf("> %s", str), DialogueBounds)
-			s.choices[i].choice = i
+	defer s.handler.mut.RUnlock()
 
-			s.choices[i].clickBounds.Max.X = DialogueBounds.Max.X
+	renderer.SetColor(colornames.White)
+	feed := renderer.NewFeed(fixed.P(DialogueBounds.Min.X, DialogueBounds.Min.Y))
+
+	DrawInBox(feed, s.handler.currNode.Prompt, DialogueBounds)
+	feed.LineBreak()
+	s.choices = make([]Choice, len(s.handler.currOpts))
+	for i, choice := range s.handler.currOpts {
+		str, err := stringTable.Render(choice.Line)
+		if err != nil {
+			panic(fmt.Errorf("rendering option: %w", err))
 		}
-	}()
+		feed.LineBreak()
+		if s.highlighted == i {
+			renderer.SetColor(colornames.Cyan500)
+		} else {
+			renderer.SetColor(colornames.White)
+		}
+		s.choices[i].clickBounds = DrawInBox(feed, fmt.Sprintf("> %s", str), DialogueBounds)
+		s.choices[i].choice = i
+
+		s.choices[i].clickBounds.Max.X = DialogueBounds.Max.X
+	}
 }
 
 type Node struct {

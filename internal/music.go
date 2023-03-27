@@ -16,13 +16,17 @@ const (
 
 // Player represents the current audio state.
 type Player struct {
-	game         *Game
-	audioContext *audio.Context
-	audioPlayer  *audio.Player
-	current      time.Duration
-	total        time.Duration
-	seBytes      []byte
-	volume128    int
+	game           *Game
+	audioContext   *audio.Context
+	audioPlayer    *audio.Player
+	current        time.Duration
+	total          time.Duration
+	totalSampleLen time.Duration
+	seBytes        []byte
+	volume128      int
+
+	fadeInTime *time.Duration
+	fadeStart  time.Time
 
 	playButtonPosition  image.Point
 	alertButtonPosition image.Point
@@ -51,17 +55,19 @@ func NewPlayer(audioContext *audio.Context) (*Player, error) {
 	if err != nil {
 		return nil, err
 	}
+	fadein := 5 * time.Second
 	player := &Player{
-		audioContext: audioContext,
-		audioPlayer:  p,
-		total:        time.Second * time.Duration(s.Length()) / bytesPerSample / sampleRate,
-		volume128:    128,
+		audioContext:   audioContext,
+		audioPlayer:    p,
+		totalSampleLen: time.Second * time.Duration(s.Length()) / bytesPerSample / sampleRate,
+		volume128:      64,
+		fadeInTime:     &fadein,
+		fadeStart:      time.Now(),
 	}
-	if player.total == 0 {
-		player.total = 1
+	if player.totalSampleLen == 0 {
+		player.totalSampleLen = 1
 	}
 
-	player.audioPlayer.Play()
 	return player, nil
 }
 
@@ -72,8 +78,11 @@ func (p *Player) Close() error {
 func (p *Player) update() error {
 	if p.audioPlayer.IsPlaying() {
 		p.current = p.audioPlayer.Current()
+	} else {
+		p.audioPlayer.Play()
 	}
-	if p.total-p.current <= 19*time.Millisecond { // TODO: this is a total hack.
+	if p.totalSampleLen-p.current <= 19*time.Millisecond { // TODO: this is a hack.
+		p.total += p.current
 		if err := p.audioPlayer.Rewind(); err != nil {
 			panic(fmt.Errorf("audio player panicked on rewind: %w", err))
 		}
@@ -82,6 +91,10 @@ func (p *Player) update() error {
 	p.updateVolumeIfNeeded()
 
 	return nil
+}
+
+func (p *Player) totalTime() time.Duration {
+	return p.total + p.current
 }
 
 func (p *Player) updateVolumeIfNeeded() {
@@ -97,5 +110,15 @@ func (p *Player) updateVolumeIfNeeded() {
 	if 128 < p.volume128 {
 		p.volume128 = 128
 	}
-	p.audioPlayer.SetVolume(float64(p.volume128) / 128)
+	if p.fadeInTime != nil { // HACKS!
+		dt := float64(time.Now().Sub(p.fadeStart)) / float64(*p.fadeInTime)
+		if dt > 1 {
+			dt = 1
+			p.fadeStart = time.Time{}
+			p.fadeInTime = nil
+		}
+		p.audioPlayer.SetVolume(dt * float64(p.volume128) / 128)
+	} else {
+		p.audioPlayer.SetVolume(float64(p.volume128) / 128)
+	}
 }
