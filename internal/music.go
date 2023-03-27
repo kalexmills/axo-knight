@@ -38,7 +38,7 @@ func NewPlayer(audioContext *audio.Context) (*Player, error) {
 
 	var s audioStream
 
-	f, err := gamedata.Open("gamedata/music/fluteloop.mp3")
+	f, err := gamedata.Open("gamedata/music/anotherfluteloopwithsometamborine.mp3")
 	if err != nil {
 		panic(err)
 	}

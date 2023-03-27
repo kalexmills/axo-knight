@@ -38,8 +38,10 @@ var (
 )
 
 var (
-	fg       *ebiten.Image
-	barracks *ebiten.Image
+	fg        *ebiten.Image
+	barracks  *ebiten.Image
+	greatHall *ebiten.Image
+	bedroom   *ebiten.Image
 
 	currBg   *ebiten.Image
 	currChar *ebiten.Image
@@ -49,6 +51,8 @@ func init() {
 	// load up UI and background images
 	fg = loadImg("gamedata/ui-scaled.png")
 	barracks = loadImg("gamedata/barracks.png")
+	greatHall = loadImg("gamedata/hall_background.png")
+	bedroom = loadImg("gamedata/bedroom.png")
 	currBg = barracks
 
 	// load up fonts
@@ -133,6 +137,11 @@ func (s *TextScene) Update() error {
 				s.handler.choice <- choice.choice // send choice back to dialogue handler
 			}
 		}
+		func() {
+			//s.handler.clickMut.Lock()
+			//defer s.handler.clickMut.Unlock()
+			s.handler.click.Broadcast()
+		}()
 	}
 	return nil
 }
@@ -189,13 +198,19 @@ type DialogueHandler struct {
 	seq      int // ever-increasing sequence number
 	currNode Node
 	choice   chan int
+
+	click    *sync.Cond
+	clickMut *sync.Mutex
+
 	currOpts []yarn.Option
 }
 
 func NewDialogueHandler() *DialogueHandler {
 	result := &DialogueHandler{
-		choice: make(chan int),
+		choice:   make(chan int),
+		clickMut: &sync.Mutex{},
 	}
+	result.click = sync.NewCond(result.clickMut)
 	result.vm = &yarn.VirtualMachine{
 		Program: program,
 		Handler: result,
@@ -275,7 +290,38 @@ func (h *DialogueHandler) DialogueComplete() error {
 }
 
 func (h *DialogueHandler) Command(cmd string) error {
-	fmt.Printf("running command: %s\n", cmd)
+	tokens := strings.Split(cmd, " ")
+	switch tokens[0] {
+	case "background":
+		return h.background(tokens[1])
+	case "wait":
+		return h.wait()
+	default:
+		return fmt.Errorf("unknown commmand '%s'", tokens[0])
+	}
+}
+
+func (h *DialogueHandler) background(img string) error {
+	switch img {
+	case "great_hall":
+		currBg = greatHall
+	case "barracks":
+		currBg = barracks
+	case "bedroom":
+		currBg = bedroom
+	default:
+		return fmt.Errorf("unknown background: '%s'", img)
+	}
+	return nil
+}
+
+func (h *DialogueHandler) wait() error {
+	h.currOpts = nil
+	h.clickMut.Lock()
+	defer h.clickMut.Unlock()
+	h.click.Wait() // block the current thread
+	// clear the dialogue
+	h.currNode.Prompt = "" // MOAR HACKS
 	return nil
 }
 
