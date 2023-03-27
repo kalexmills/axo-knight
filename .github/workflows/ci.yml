@@ -1,4 +1,4 @@
-# from https://github.com/sinisterstuf/2d-platformer/blob/main/.github/workflows/build.yml
+# from https://github.com/sinisterstuf/axo-knight/blob/main/.github/workflows/build.yml
 name: Build Executables
 on: [push]
 jobs:
@@ -31,14 +31,14 @@ jobs:
           go-version: 1.19
       - name: Build Windows exe
         shell: bash
-        run: go build -v -o 2d-platformer.exe cmd/game/main.go
+        run: go build -v -o axo-knight.exe cmd/game/main.go
       - name: Upload Windows exe
         uses: actions/upload-artifact@v3
         with:
-          name: 2d-platformer-win
+          name: axo-knight-win
           path: |
             LICENSE
-            2d-platformer.exe
+            axo-knight.exe
 
   build-mac:
     name: Build MacOS binary
@@ -52,15 +52,15 @@ jobs:
           go-version: 1.19
       - name: Build Mac exe
         shell: bash
-        run: go build -v -o 2d-platformer cmd/game/main.go
+        run: go build -v -o axo-knight cmd/game/main.go
       - name: Tar it up
         shell: bash
-        run: tar -zcvf 2d-platformer-mac.tar.gz 2d-platformer LICENSE
+        run: tar -zcvf axo-knight-mac.tar.gz axo-knight LICENSE
       - name: Upload Mac exe
         uses: actions/upload-artifact@v3
         with:
-          name: 2d-platformer-mac
-          path: 2d-platformer-mac.tar.gz
+          name: axo-knight-mac
+          path: axo-knight-mac.tar.gz
 
   build-lin:
     name: Build Linux binary
@@ -77,15 +77,15 @@ jobs:
         run: sudo apt-get update && sudo apt-get -y install libgl1-mesa-dev xorg-dev libasound2-dev
       - name: Build Linux exe
         shell: bash
-        run: go build -v -o 2d-platformer cmd/game/main.go
+        run: go build -v -o axo-knight cmd/game/main.go
       - name: Tar it up
         shell: bash
-        run: tar -zcvf 2d-platformer-lin.tar.gz 2d-platformer LICENSE
+        run: tar -zcvf axo-knight-lin.tar.gz axo-knight LICENSE
       - name: Upload Linux exe
         uses: actions/upload-artifact@v3
         with:
-          name: 2d-platformer-lin
-          path: 2d-platformer-lin.tar.gz
+          name: axo-knight-lin
+          path: axo-knight-lin.tar.gz
 
   build-web:
     name: Build Web binary
@@ -99,14 +99,14 @@ jobs:
           go-version: 1.19
       - name: Build Web binary
         shell: bash
-        run: GOOS=js GOARCH=wasm go build -v -ldflags "-w -s" -o dist/web/2d-platformer.wasm cmd/game/main.go
+        run: GOOS=js GOARCH=wasm go build -v -ldflags "-w -s" -o dist/web/axo-knight.wasm cmd/game/main.go
       - name: Copy WASM exec script
         shell: bash
         run: cp $(go env GOROOT)/misc/wasm/wasm_exec.js dist/web/.
       - name: Upload Web build
         uses: actions/upload-artifact@v3
         with:
-          name: 2d-platformer-web
+          name: axo-knight-web
           path: |
             dist/web/
             LICENSE
@@ -120,25 +120,25 @@ jobs:
       - name: Download Windows binary
         uses: actions/download-artifact@v3
         with:
-          name: 2d-platformer-win
+          name: axo-knight-win
       - name: Download Linux binary
         uses: actions/download-artifact@v3
         with:
-          name: 2d-platformer-lin
+          name: axo-knight-lin
       - name: Download Mac binary
         uses: actions/download-artifact@v3
         with:
-          name: 2d-platformer-mac
+          name: axo-knight-mac
       - name: Upload beta testing bundle
         uses: actions/upload-artifact@v3
         with:
-          name: 2d-platformer-bundle
+          name: axo-knight-bundle
           path: |
             README.md
             LICENSE
-            2d-platformer-lin.tar.gz
-            2d-platformer-mac.tar.gz
-            2d-platformer.exe
+            axo-knight-lin.tar.gz
+            axo-knight-mac.tar.gz
+            axo-knight.exe
 
 #  deploy-win:
 #    name: Deploy Windows build to itch.io
@@ -148,14 +148,14 @@ jobs:
 #    steps:
 #      - uses: actions/download-artifact@v3
 #        with:
-#          name: 2d-platformer-win
+#          name: axo-knight-win
 #      - uses: josephbmanley/butler-publish-itchio-action@master
 #        env:
 #          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
 #          CHANNEL: windows
-#          ITCH_GAME: 2d-platformer
+#          ITCH_GAME: axo-knight
 #          ITCH_USER: sinisterstuf
-#          PACKAGE: 2d-platformer.exe
+#          PACKAGE: axo-knight.exe
 #          VERSION: ${{github.ref_name}}
 #
 #  deploy-mac:
@@ -166,17 +166,17 @@ jobs:
 #    steps:
 #      - uses: actions/download-artifact@v3
 #        with:
-#          name: 2d-platformer-mac
+#          name: axo-knight-mac
 #      - name: Extract tarball
 #        shell: bash
-#        run: tar -zxvf 2d-platformer-mac.tar.gz
+#        run: tar -zxvf axo-knight-mac.tar.gz
 #      - uses: josephbmanley/butler-publish-itchio-action@master
 #        env:
 #          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
 #          CHANNEL: mac
-#          ITCH_GAME: 2d-platformer
+#          ITCH_GAME: axo-knight
 #          ITCH_USER: sinisterstuf
-#          PACKAGE: 2d-platformer
+#          PACKAGE: axo-knight
 #          VERSION: ${{github.ref_name}}
 #
 #  deploy-lin:
@@ -187,17 +187,17 @@ jobs:
 #    steps:
 #      - uses: actions/download-artifact@v3
 #        with:
-#          name: 2d-platformer-lin
+#          name: axo-knight-lin
 #      - name: Extract tarball
 #        shell: bash
-#        run: tar -zxvf 2d-platformer-lin.tar.gz
+#        run: tar -zxvf axo-knight-lin.tar.gz
 #      - uses: josephbmanley/butler-publish-itchio-action@master
 #        env:
 #          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
 #          CHANNEL: linux
-#          ITCH_GAME: 2d-platformer
+#          ITCH_GAME: axo-knight
 #          ITCH_USER: sinisterstuf
-#          PACKAGE: 2d-platformer
+#          PACKAGE: axo-knight
 #          VERSION: ${{github.ref_name}}
 #
 #  deploy-web:
@@ -208,12 +208,12 @@ jobs:
 #    steps:
 #      - uses: actions/download-artifact@v3
 #        with:
-#          name: 2d-platformer-web
+#          name: axo-knight-web
 #      - uses: josephbmanley/butler-publish-itchio-action@master
 #        env:
 #          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
 #          CHANNEL: web
-#          ITCH_GAME: 2d-platformer
+#          ITCH_GAME: axo-knight
 #          ITCH_USER: sinisterstuf
 #          PACKAGE: dist/web
 #          VERSION: ${{github.ref_name}}
