@@ -42,6 +42,8 @@ var (
 	barracks  *ebiten.Image
 	greatHall *ebiten.Image
 	bedroom   *ebiten.Image
+	berthilde *ebiten.Image
+	melusine  *ebiten.Image
 
 	currBg   *ebiten.Image
 	currChar *ebiten.Image
@@ -54,6 +56,9 @@ func init() {
 	greatHall = loadImg("gamedata/hall_background.png")
 	bedroom = loadImg("gamedata/bedroom.png")
 	currBg = barracks
+
+	berthilde = loadImg("gamedata/berthilde.png")
+	melusine = loadImg("gamedata/melusine.png")
 
 	// load up fonts
 	fontLib = etxt.NewFontLibrary()
@@ -152,6 +157,12 @@ func (s *TextScene) Draw(screen *ebiten.Image) {
 	opts := ebiten.DrawImageOptions{}
 	opts.GeoM.Translate(141, 0)
 	screen.DrawImage(currBg, &opts) // draw current background centered
+
+	if currChar != nil {
+		opts.GeoM.Reset()
+		opts.GeoM.Translate(float64(400-currChar.Bounds().Dx()/2), float64(300-currChar.Bounds().Dy()/2))
+		screen.DrawImage(currChar, &opts)
+	}
 
 	screen.DrawImage(fg, nil) // draw foreground over everything.
 
@@ -286,6 +297,11 @@ func (h *DialogueHandler) NodeComplete(name string) error {
 
 func (h *DialogueHandler) DialogueComplete() error {
 	fmt.Println("dialogue complete")
+	go func() { // MAJOR END OF GAME HAX!!
+		for ch := range h.choice {
+			fmt.Println("chosen", ch)
+		}
+	}()
 	return nil
 }
 
@@ -294,6 +310,8 @@ func (h *DialogueHandler) Command(cmd string) error {
 	switch tokens[0] {
 	case "background":
 		return h.background(tokens[1])
+	case "char":
+		return h.character(tokens[1])
 	case "wait":
 		return h.wait()
 	default:
@@ -315,6 +333,20 @@ func (h *DialogueHandler) background(img string) error {
 	return nil
 }
 
+func (h *DialogueHandler) character(name string) error {
+	switch name {
+	case "berthilde":
+		setCharacter(berthilde)
+	case "melusine":
+		setCharacter(melusine)
+	case "none":
+		unsetCharacter()
+	default:
+		return fmt.Errorf("unknown character: '%s'", name)
+	}
+	return nil
+}
+
 func (h *DialogueHandler) wait() error {
 	h.currOpts = nil
 	h.clickMut.Lock()
@@ -323,6 +355,14 @@ func (h *DialogueHandler) wait() error {
 	// clear the dialogue
 	h.currNode.Prompt = "" // MOAR HACKS
 	return nil
+}
+
+func setCharacter(img *ebiten.Image) {
+	currChar = img
+}
+
+func unsetCharacter() {
+	currChar = nil
 }
 
 // DrawInBox draws the provided string staying within the provided bounds. The rectangle taken up by the text written is

@@ -8,6 +8,7 @@ A stern-looking toad stands above you, a straw broom in her slimy grasp. She loo
 -> "Ugh, my head..."
 
 "I said GET UP!!!" The toad pokes you with the handle of the tiny broom which she holds in her hands. You recognize her as Berthilde, head servant at Stonebriar Keep, where you work diligently as a squire under the famous knight, Ser Reynard
+<< char berthilde >>
 
 ->"Oh, it's you Berthilde. Why are you shouting at me?"
 
@@ -45,6 +46,7 @@ A gentle look briefly passes over Berthilde's face as she lets out a deep sigh.
 << wait >>
 
 With that, Berthilde promptly exits the barracks and leaves you alone in the room with Ser Reynard still loudly snoring away in the corner. You deftly put on your day clothes and sneak out of the room, being doubly sure not to make a sound.
+<< char none >>
 << wait >>
 
 You find yourself in the resplendent Main Hall, full of passed-out courtiers and servants. The space is only slightly worse-for-wear after the previous eve's raucous festivities. You blush as you notice the distinct muddy shapes of axolotl feet--your feet-- which trail across the ceiling and around the walls, occasionally ducking behind the now askew tapestries lining the cold stone walls.
@@ -57,16 +59,24 @@ You follow them through into the halls, through the kitchens, past the gallery, 
 ->"Oh no, that can't be good..."
 
 Lady Melusine, the owner of Stonebriar, is a kind woman, but you dread to think of what scandals you may have caused by entering her room. Pooling all your resolve, you quietly open the door and tiptoe in, hangover-weary eyes straining to see the trail in the dimly lit room.
+<< wait >>
+
 You finally notice that they continue out onto the balcony, hidden by a large curtain of rich red velvet.
+<< wait >>
+
 Slowly pulling it aside after striding stealthily across the room, you are blinded by the hard wall of daylight that strikes your still-aching head.
 ->"Aagh!"
+
+
 Suddenly you hear the dulcet tones of a most melodic voice: "Why squire Squishington, come to pay a visit to me again so soon?"
+<< wait >>
+
 Lady Melusine stands at the railing of the balcony, a small book in hand. She sets it aside and grins at you knowingly, the tresses of her flaxen hair gleaming like gold in the light of dawn.
+<< char melusine >>
 
-
-->"My Lady, please forgive the intrusion!"
-->"Oh, my Lady, I apologize, I thought you still asleep."
-->remain silent
+-> "My Lady, please forgive the intrusion!"
+-> "Oh, my Lady, I apologize, I thought you still asleep."
+-> Say nothing.
 
 
 "It's quite alright my dear," she giggles happily. "Don't trouble yourself, you had quite a night, after all."
